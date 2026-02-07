@@ -86,7 +86,7 @@ Midnight.js is the **primary TypeScript application development framework** — 
 
 | Package                              | Version | Purpose                                                |
 | ------------------------------------ | ------- | ------------------------------------------------------ |
-| `@midnight-ntwrk/ledger-v7`          | 7.0.1   | Core ledger primitives and WASM bindings               |
+| `@midnight-ntwrk/ledger-v7`          | 7.0.0   | Core ledger primitives and WASM bindings               |
 | `@midnight-ntwrk/onchain-runtime-v2` | 2.0.0   | On-chain runtime execution                             |
 | `@midnight-ntwrk/zswap`              | -       | Zswap protocol for shielded transfers and atomic swaps |
 
@@ -227,7 +227,7 @@ As a wallet, Dark Wallet needs to provide implementations for several Midnight.j
 - `@midnight-ntwrk/wallet-sdk-hd` (v3.0.0): HD derivation
 - `@midnight-ntwrk/wallet-sdk-address-format` (v3.0.0): Address encoding/decoding
 - `@midnight-ntwrk/compact-runtime` (v0.14.0): Contract execution
-- `@midnight-ntwrk/ledger-v7` (v7.0.1): Ledger primitives
+- `@midnight-ntwrk/ledger-v7` (v7.0.0): Ledger primitives
 - `@midnight-ntwrk/dapp-connector-api` (v4.0.0): Connector type definitions
 
 ---

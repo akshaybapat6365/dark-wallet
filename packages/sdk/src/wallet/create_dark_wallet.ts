@@ -1,10 +1,15 @@
 import { apiError } from "../api/api_error.js";
 import { type ConnectedAPI, ErrorCodes, type WalletConnectedAPI } from "../api/types.js";
-import { notImplemented } from "../errors.js";
 import { Emitter } from "../events/emitter.js";
+import { MidnightBackend } from "../midnight/backend.js";
 import { AllowAllPermissionController, type WalletMethodName } from "../permissions/types.js";
 import { EncryptedStateStore } from "../state/encrypted_state_store.js";
-import { type WalletStateV1, type WalletStateV2, normalizeState } from "../state/schema.js";
+import {
+  type WalletStateV1,
+  type WalletStateV2,
+  type WalletStateV3,
+  normalizeState,
+} from "../state/schema.js";
 import { InMemoryStorageProvider } from "../storage/in_memory.js";
 import { IndexedDbStorageProvider } from "../storage/indexed_db.js";
 import type { StorageProvider } from "../storage/types.js";
@@ -24,6 +29,7 @@ export function createDarkWallet(config: DarkWalletConfig): DarkWallet {
 
   let destroyed = false;
   let connectedNetworkId: string | null = null;
+  let activeBackend: MidnightBackend | null = null;
 
   function assertNotDestroyed() {
     if (destroyed) throw apiError(ErrorCodes.Disconnected, "DarkWallet is destroyed.");
@@ -44,15 +50,38 @@ export function createDarkWallet(config: DarkWalletConfig): DarkWallet {
     }
 
     const rootSecret = await config.keyMaterial.getRootSecret();
-    const { storageKey } = await deriveWalletKeys(rootSecret);
+    const { masterSeed, storageKey } = await deriveWalletKeys(rootSecret);
     const store = new EncryptedStateStore({ storage, storageKey });
 
-    const loaded = await store.load<WalletStateV1 | WalletStateV2>();
+    const loaded = await store.load<WalletStateV1 | WalletStateV2 | WalletStateV3>();
     let state = normalizeState(loaded ?? undefined, { networkId: config.endpoints.networkId });
     if (!loaded || loaded.schemaVersion !== state.schemaVersion) await store.save(state);
 
     events.emit("ready", { walletId: state.walletId, networkId: state.networkId });
     connectedNetworkId = state.networkId;
+
+    const backend = new MidnightBackend({
+      origin,
+      masterSeed,
+      config: {
+        networkId: config.endpoints.networkId,
+        indexerUri: config.endpoints.indexerUri,
+        ...(config.endpoints.indexerWsUri ? { indexerWsUri: config.endpoints.indexerWsUri } : {}),
+        ...(config.endpoints.proverServerUri
+          ? { proverServerUri: config.endpoints.proverServerUri }
+          : {}),
+        substrateNodeUri: config.endpoints.substrateNodeUri,
+        persisted: state.walletSdkState,
+      },
+    });
+    activeBackend = backend;
+
+    async function persistBackendState(): Promise<void> {
+      const snap = await backend.snapshot();
+      state = { ...state, walletSdkState: snap };
+      await store.save(state);
+      events.emit("stateChanged", { walletId: state.walletId });
+    }
 
     async function ensurePermissions(methods: WalletMethodName[]): Promise<void> {
       assertNotDestroyed();
@@ -95,47 +124,76 @@ export function createDarkWallet(config: DarkWalletConfig): DarkWallet {
     const api: ConnectedAPI = {
       async getShieldedBalances() {
         assertConnected();
-        throw notImplemented("getShieldedBalances not implemented yet.");
+        await ensurePermissions(["getShieldedBalances"]);
+        const res = await backend.getShieldedBalances();
+        await persistBackendState();
+        return res;
       },
       async getUnshieldedBalances() {
         assertConnected();
-        throw notImplemented("getUnshieldedBalances not implemented yet.");
+        await ensurePermissions(["getUnshieldedBalances"]);
+        const res = await backend.getUnshieldedBalances();
+        await persistBackendState();
+        return res;
       },
       async getDustBalance() {
         assertConnected();
-        throw notImplemented("getDustBalance not implemented yet.");
+        await ensurePermissions(["getDustBalance"]);
+        const res = await backend.getDustBalance();
+        await persistBackendState();
+        return res;
       },
       async getShieldedAddresses() {
         assertConnected();
-        throw notImplemented("getShieldedAddresses not implemented yet.");
+        await ensurePermissions(["getShieldedAddresses"]);
+        const res = await backend.getShieldedAddresses();
+        await persistBackendState();
+        return res;
       },
       async getUnshieldedAddress() {
         assertConnected();
-        throw notImplemented("getUnshieldedAddress not implemented yet.");
+        await ensurePermissions(["getUnshieldedAddress"]);
+        return backend.getUnshieldedAddress();
       },
       async getDustAddress() {
         assertConnected();
-        throw notImplemented("getDustAddress not implemented yet.");
+        await ensurePermissions(["getDustAddress"]);
+        const res = await backend.getDustAddress();
+        await persistBackendState();
+        return res;
       },
       async balanceUnsealedTransaction(_tx: string) {
         assertConnected();
-        throw notImplemented("balanceUnsealedTransaction not implemented yet.");
+        await ensurePermissions(["balanceUnsealedTransaction"]);
+        const res = await backend.balanceUnsealedTransaction(_tx);
+        await persistBackendState();
+        return res;
       },
       async balanceSealedTransaction(_tx: string) {
         assertConnected();
-        throw notImplemented("balanceSealedTransaction not implemented yet.");
+        await ensurePermissions(["balanceSealedTransaction"]);
+        const res = await backend.balanceSealedTransaction(_tx);
+        await persistBackendState();
+        return res;
       },
       async makeTransfer(_desiredOutputs) {
         assertConnected();
-        throw notImplemented("makeTransfer not implemented yet.");
+        await ensurePermissions(["makeTransfer"]);
+        const res = await backend.makeTransfer(_desiredOutputs);
+        await persistBackendState();
+        return res;
       },
       async makeIntent(_desiredInputs, _desiredOutputs, _options) {
         assertConnected();
-        throw notImplemented("makeIntent not implemented yet.");
+        await ensurePermissions(["makeIntent"]);
+        const res = await backend.makeIntent(_desiredInputs, _desiredOutputs, _options);
+        await persistBackendState();
+        return res;
       },
       async signData(_data: string, _options) {
         assertConnected();
-        throw notImplemented("signData not implemented yet.");
+        await ensurePermissions(["signData"]);
+        return backend.signData(_data, _options);
       },
       async hintUsage(methodNames: Array<keyof WalletConnectedAPI>) {
         await ensurePermissions(methodNames as WalletMethodName[]);
@@ -154,15 +212,21 @@ export function createDarkWallet(config: DarkWalletConfig): DarkWallet {
       },
       async getProvingProvider(_keyMaterialProvider) {
         assertConnected();
-        throw notImplemented("getProvingProvider not implemented yet.");
+        await ensurePermissions(["getProvingProvider"]);
+        return backend.provingProvider(_keyMaterialProvider);
       },
       async submitTransaction(_tx: string) {
         assertConnected();
-        throw notImplemented("submitTransaction not implemented yet.");
+        await ensurePermissions(["submitTransaction"]);
+        await backend.submitTransaction(_tx);
+        await persistBackendState();
       },
       async getTxHistory(_pageNumber: number, _pageSize: number) {
         assertConnected();
-        throw notImplemented("getTxHistory not implemented yet.");
+        await ensurePermissions(["getTxHistory"]);
+        const res = await backend.getTxHistory(_pageNumber, _pageSize);
+        await persistBackendState();
+        return res;
       },
       async getConnectionStatus() {
         if (!connectedNetworkId) return { status: "disconnected" };
@@ -186,6 +250,8 @@ export function createDarkWallet(config: DarkWalletConfig): DarkWallet {
     async destroy() {
       destroyed = true;
       connectedNetworkId = null;
+      await activeBackend?.stop();
+      activeBackend = null;
     },
   };
 }
