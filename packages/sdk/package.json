@@ -17,7 +17,9 @@
     "build": "tsup",
     "test": "vitest run"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@midnight-ntwrk/dapp-connector-api": "4.0.0"
+  },
   "devDependencies": {
     "@types/node": "^22.13.0",
     "tsup": "^8.0.2",

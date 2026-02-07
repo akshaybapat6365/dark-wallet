@@ -1,13 +1,14 @@
 import type { ConnectedAPI, InitialAPI } from "../api/types.js";
 import type { Emitter } from "../events/emitter.js";
 import type { KeyMaterialProvider } from "../key-material/types.js";
+import type { PermissionController } from "../permissions/types.js";
 import type { StorageProvider } from "../storage/types.js";
 
 export type EndpointsConfig = {
   networkId: string;
   indexerUri: string;
   indexerWsUri?: string;
-  proverServerUri: string;
+  proverServerUri?: string;
   substrateNodeUri: string;
 };
 
@@ -16,9 +17,17 @@ export type DarkWalletConfig = {
   name?: string;
   icon?: string;
   apiVersion?: string;
+  /**
+   * Connection context used for permission scoping.
+   *
+   * - embedded SDK: defaults to "embedded"
+   * - extension: set to the requesting origin (e.g. "https://dapp.example")
+   */
+  origin?: string;
   endpoints: EndpointsConfig;
   storage?: StorageProvider;
   keyMaterial: KeyMaterialProvider;
+  permissions?: PermissionController;
 };
 
 export type WalletEvents = {

@@ -21,6 +21,13 @@ export { InMemoryStorageProvider } from "./storage/in_memory.js";
 export { IndexedDbStorageProvider } from "./storage/indexed_db.js";
 
 export type {
+  PermissionController,
+  PermissionRecord,
+  WalletMethodName,
+} from "./permissions/types.js";
+export { AllowAllPermissionController } from "./permissions/types.js";
+
+export type {
   DarkWallet,
   DarkWalletConfig,
   EndpointsConfig,
