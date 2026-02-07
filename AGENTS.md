@@ -25,6 +25,7 @@ If given a Windows path (`C:\\...` or `C:/...`), translate to `/mnt/c/...` befor
 ## API Compatibility
 - Extension provider must follow `@midnight-ntwrk/dapp-connector-api` v4.0.0 injection model (`window.midnight[uuid]`).
 - Embedded SDK exposes a programmatic equivalent of `ConnectedAPI`.
+- Transaction strings in the connector surface are `hex(Transaction.serialize())` (not `Transaction.toString()`).
 
 ## Coding Standards
 - Strict TypeScript; avoid `any` in the SDK public surface.
