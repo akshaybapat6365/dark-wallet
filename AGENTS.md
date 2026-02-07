@@ -23,7 +23,7 @@ If given a Windows path (`C:\\...` or `C:/...`), translate to `/mnt/c/...` befor
 - No secrets in git: `.env*` is ignored.
 
 ## API Compatibility
-- Extension provider must follow `@midnight-ntwrk/dapp-connector-api` v3.0.0 injection model (`window.midnight[uuid]`).
+- Extension provider must follow `@midnight-ntwrk/dapp-connector-api` v4.0.0 injection model (`window.midnight[uuid]`).
 - Embedded SDK exposes a programmatic equivalent of `ConnectedAPI`.
 
 ## Coding Standards
@@ -32,4 +32,3 @@ If given a Windows path (`C:\\...` or `C:/...`), translate to `/mnt/c/...` befor
 
 ## Testing Minimum
 - Any bugfix needs a regression test in `packages/sdk`.
-

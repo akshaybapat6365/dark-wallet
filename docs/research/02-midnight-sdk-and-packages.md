@@ -6,6 +6,9 @@
 
 ---
 
+> Note: upstream package versions move quickly. For the current pinned/verified versions in this repo, see
+> `docs/references/version-matrix.md`.
+
 ## 1. Midnight.js Framework Overview
 
 Midnight.js is the **primary TypeScript application development framework** — equivalent to Web3.js (Ethereum) or polkadot.js (Polkadot).
@@ -51,12 +54,12 @@ Midnight.js is the **primary TypeScript application development framework** — 
 
 | Package                                  | Version | Purpose                                                    |
 | ---------------------------------------- | ------- | ---------------------------------------------------------- |
-| `@midnight-ntwrk/midnight-js`            | 3.0.0   | Main framework entry point                                 |
-| `@midnight-ntwrk/midnight-js-types`      | 1.0.0   | Shared data types & interfaces for all modules             |
-| `@midnight-ntwrk/midnight-js-contracts`  | 1.0.0   | Deployed contract interaction, deployment, state queries   |
+| `@midnight-ntwrk/midnight-js-*`          | 3.0.0   | Published as a family of packages (no single root package) |
+| `@midnight-ntwrk/midnight-js-types`      | 3.0.0   | Shared data types & interfaces for all modules             |
+| `@midnight-ntwrk/midnight-js-contracts`  | 3.0.0   | Deployed contract interaction, deployment, state queries   |
 | `@midnight-ntwrk/compact-runtime`        | 0.14.0  | Runtime primitives for Compact's TypeScript/JS output      |
-| `@midnight-ntwrk/midnight-js-network-id` | 1.0.0   | Network configuration (TestNet/MainNet/Preview/Standalone) |
-| `@midnight-ntwrk/midnight-js-utils`      | -       | Hex utils, type utils, date utils, assertion utils         |
+| `@midnight-ntwrk/midnight-js-network-id` | 3.0.0   | Network configuration (TestNet/MainNet/Preview/Standalone) |
+| `@midnight-ntwrk/midnight-js-utils`      | 3.0.0   | Hex utils, type utils, date utils, assertion utils         |
 
 ### 2.2 Providers
 
@@ -75,15 +78,15 @@ Midnight.js is the **primary TypeScript application development framework** — 
 | ------------------------------------ | ------- | ---------------------------------------------------------------- |
 | `@midnight-ntwrk/wallet`             | 5.0.0   | Full wallet SDK — key management, transactions, dApp interaction |
 | `@midnight-ntwrk/wallet-api`         | -       | Wallet API interface definitions                                 |
-| `@midnight-ntwrk/wallet-sdk-hd`      | 2.0.0   | HD wallet with BIP-32/BIP-44/CIP-1852 derivation                 |
-| `@midnight-ntwrk/wallet-sdk-bech32m` | 2.0.0   | Bech32m address encoding/decoding                                |
+| `@midnight-ntwrk/wallet-sdk-hd`      | 3.0.0   | HD wallet with BIP-32 derivation (roles for Midnight)            |
+| `@midnight-ntwrk/wallet-sdk-address-format` | 3.0.0 | Bech32m address encoding/decoding and formatting               |
 | `@midnight-ntwrk/wallet-sdk-facade`  | 1.0.0   | Facade for wallet operations                                     |
 
 ### 2.4 Protocol & Ledger
 
 | Package                              | Version | Purpose                                                |
 | ------------------------------------ | ------- | ------------------------------------------------------ |
-| `@midnight-ntwrk/ledger-v7`          | 7.0.0   | Core ledger primitives and WASM bindings               |
+| `@midnight-ntwrk/ledger-v7`          | 7.0.1   | Core ledger primitives and WASM bindings               |
 | `@midnight-ntwrk/onchain-runtime-v2` | 2.0.0   | On-chain runtime execution                             |
 | `@midnight-ntwrk/zswap`              | -       | Zswap protocol for shielded transfers and atomic swaps |
 
@@ -91,7 +94,7 @@ Midnight.js is the **primary TypeScript application development framework** — 
 
 | Package                              | Version | Purpose                                               |
 | ------------------------------------ | ------- | ----------------------------------------------------- |
-| `@midnight-ntwrk/dapp-connector-api` | 3.0.0   | Wallet-DApp communication (window.midnight injection) |
+| `@midnight-ntwrk/dapp-connector-api` | 4.0.0   | Wallet-DApp communication (window.midnight injection) |
 
 ---
 
@@ -221,11 +224,11 @@ As a wallet, Dark Wallet needs to provide implementations for several Midnight.j
 ### 6.2 What Dark Wallet Can Reuse
 
 - `@midnight-ntwrk/wallet` (v5.0.0): Core wallet logic
-- `@midnight-ntwrk/wallet-sdk-hd` (v2.0.0): HD derivation
-- `@midnight-ntwrk/wallet-sdk-bech32m` (v2.0.0): Address encoding
+- `@midnight-ntwrk/wallet-sdk-hd` (v3.0.0): HD derivation
+- `@midnight-ntwrk/wallet-sdk-address-format` (v3.0.0): Address encoding/decoding
 - `@midnight-ntwrk/compact-runtime` (v0.14.0): Contract execution
-- `@midnight-ntwrk/ledger-v7` (v7.0.0): Ledger primitives
-- `@midnight-ntwrk/dapp-connector-api` (v3.0.0): Connector type definitions
+- `@midnight-ntwrk/ledger-v7` (v7.0.1): Ledger primitives
+- `@midnight-ntwrk/dapp-connector-api` (v4.0.0): Connector type definitions
 
 ---
 

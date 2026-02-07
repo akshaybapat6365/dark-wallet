@@ -14,6 +14,7 @@
 
 ## References
 - `docs/references/compass_artifact_wf-81cb6574-61ca-496f-a203-897a2c9ce14d_text_markdown.md`
+- `docs/references/version-matrix.md`
 
 ## API Reference
 - `docs/api-reference/sdk.md`

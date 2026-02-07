@@ -10,7 +10,7 @@
 
 The dApp Connector API defines how **wallets communicate with dApps** in the Midnight ecosystem. It is analogous to Cardano's CIP-30 and Ethereum's EIP-1193, but designed specifically for Midnight's privacy model.
 
-**Package**: `@midnight-ntwrk/dapp-connector-api` v3.0.0
+**Package**: `@midnight-ntwrk/dapp-connector-api` v4.0.0
 **Source**: [github.com/midnightntwrk/midnight-dapp-connector-api](https://github.com/midnightntwrk/midnight-dapp-connector-api)
 
 ---
@@ -112,7 +112,7 @@ type UnshieldedBalance = {
 };
 
 type DustBalance = {
-  getDustBalance(): Promise<bigint>;
+  getDustBalance(): Promise<{ cap: bigint; balance: bigint }>;
 };
 ```
 
@@ -139,6 +139,30 @@ type DustAddress = {
 ### 4.3 Transaction Operations
 
 ```typescript
+type DesiredOutput = {
+  kind: "shielded" | "unshielded";
+  type: TokenType;
+  value: bigint;
+  recipient: string; // bech32m address
+};
+
+type DesiredInput = {
+  kind: "shielded" | "unshielded";
+  type: TokenType;
+  value: bigint;
+};
+
+type SignDataOptions = {
+  encoding: "hex" | "base64" | "text";
+  keyType: "unshielded";
+};
+
+type Signature = {
+  data: string;
+  signature: string;
+  verifyingKey: string;
+};
+
 type InitActions = {
   /** Balance an unsealed transaction (add inputs/outputs, pay fees) */
   balanceUnsealedTransaction(tx: string): Promise<{ tx: string }>;
@@ -156,11 +180,8 @@ type InitActions = {
     options: { intentId: number | "random"; payFees: boolean },
   ): Promise<{ tx: string }>;
 
-  /** Sign data with specified key and format */
-  signData(
-    data: string,
-    options: SignDataOptions,
-  ): Promise<{ signature: string }>;
+  /** Sign data (wallet adds a prefix for replay safety) */
+  signData(data: string, options: SignDataOptions): Promise<Signature>;
 };
 ```
 
@@ -171,7 +192,7 @@ type Configuration = {
   getConfiguration(): Promise<{
     indexerUri: string; // Indexer HTTP URI
     indexerWsUri: string; // Indexer WebSocket URI
-    proverServerUri: string; // Proof server URI
+    proverServerUri?: string; // Proof server URI (deprecated in favor of getProvingProvider)
     substrateNodeUri: string; // Substrate node URI
     networkId: string; // Connected network
   }>;
@@ -185,7 +206,7 @@ type Configuration = {
 ```typescript
 type ProvingDelegation = {
   /** Get a proving provider from the wallet */
-  getProvingProvider(keyMaterialProvider: KeyMaterialProvider): ProvingProvider;
+  getProvingProvider(keyMaterialProvider: KeyMaterialProvider): Promise<ProvingProvider>;
 };
 ```
 
@@ -195,8 +216,8 @@ DApps can delegate ZK proof generation to the wallet, which may use its own proo
 
 ```typescript
 type Submission = {
-  /** Submit a balanced, signed transaction to the network */
-  submitTransaction(tx: string): Promise<{ txHash: string }>;
+  /** Submit a balanced, sealed transaction to the network */
+  submitTransaction(tx: string): Promise<void>;
 };
 ```
 
@@ -205,6 +226,27 @@ type Submission = {
 ```typescript
 type TxHistory = {
   getTxHistory(pageNumber: number, pageSize: number): Promise<HistoryEntry[]>;
+};
+```
+
+### 4.8 Connection Status
+
+```typescript
+type ConnectionStatus = {
+  getConnectionStatus(): Promise<
+    | { status: "connected"; networkId: string }
+    | { status: "disconnected" }
+  >;
+};
+```
+
+### 4.9 Permission Hinting
+
+In v4, the wallet can optionally use `hintUsage` to prompt for permissions up-front:
+
+```typescript
+type HintUsage = {
+  hintUsage(methodNames: Array<keyof WalletConnectedAPI>): Promise<void>;
 };
 ```
 
@@ -228,7 +270,7 @@ The API deliberately keeps wallet and dApp responsibilities separate:
 
 ### 5.2 Data Signing Security
 
-All signed data is prefixed with `midnight_signed_message:<size>:` to prevent transaction replay attacks. The wallet must never sign raw data that could be misinterpreted as a transaction.
+All signed data must be domain-separated (wallet adds a prefix) to prevent replay/misinterpretation. The wallet must never sign raw data that could be misinterpreted as a transaction.
 
 ### 5.3 CAIP-372 Compatibility
 
@@ -244,7 +286,7 @@ The InitialAPI structure (with `rdns`, `name`, `icon`, `apiVersion`) is compatib
    - `rdns: "io.darkwallet.app"` (or similar)
    - `name: "Dark Wallet"`
    - `icon: <base64 or hosted URL>`
-   - `apiVersion: "3.0.0"`
+   - `apiVersion: "4.0.0"`
 
 2. **Full ConnectedAPI**: All balance, address, transaction, configuration, and proving methods
 
@@ -262,6 +304,6 @@ The InitialAPI structure (with `rdns`, `name`, `icon`, `apiVersion`) is compatib
 ## References
 
 1. Midnight dApp Connector API. _SPECIFICATION.md_. [github.com/midnightntwrk/midnight-dapp-connector-api](https://github.com/midnightntwrk/midnight-dapp-connector-api/blob/main/SPECIFICATION.md)
-2. `@midnight-ntwrk/dapp-connector-api` v3.0.0. [npmjs.com](https://www.npmjs.com/package/@midnight-ntwrk/dapp-connector-api)
+2. `@midnight-ntwrk/dapp-connector-api` v4.0.0. [npmjs.com](https://www.npmjs.com/package/@midnight-ntwrk/dapp-connector-api)
 3. Cardano CIP-30. _Cardano dApp-Wallet Web Bridge_. [cips.cardano.org/cip/CIP-0030](https://cips.cardano.org/cip/CIP-0030)
 4. CAIP-372 (Draft). _Multi-Provider Discovery_. [github.com/ChainAgnostic/CAIPs/pull/372](https://github.com/ChainAgnostic/CAIPs/pull/372)
