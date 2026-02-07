@@ -20,7 +20,7 @@ pnpm build
 
 ## Packages
 - `packages/sdk` — `@dark-wallet/sdk` (public, open-source)
+- `packages/extension` — Chrome MV3 extension scaffold (connector injection + RPC skeleton)
 
 ## Docs
 See `docs/README.md`.
-
