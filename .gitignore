@@ -1,0 +1,28 @@
+# Node / pnpm
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+coverage/
+.turbo/
+.tsbuildinfo
+
+# Logs
+*.log
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Env
+.env
+.env.*
+
+# iOS / Xcode (future)
+DerivedData/
+*.xcworkspace/
+*.xcodeproj/
+
