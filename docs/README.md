@@ -16,6 +16,11 @@
 - `docs/references/compass_artifact_wf-81cb6574-61ca-496f-a203-897a2c9ce14d_text_markdown.md`
 - `docs/references/version-matrix.md`
 
+## Decisions (ADRs)
+- `docs/decisions/ADR-001-connector-types-as-source-of-truth.md`
+- `docs/decisions/ADR-002-transaction-string-encoding.md`
+- `docs/decisions/ADR-003-mv3-offscreen-host.md`
+
 ## API Reference
 - `docs/api-reference/sdk.md`
 

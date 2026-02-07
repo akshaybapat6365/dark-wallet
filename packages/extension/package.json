@@ -10,6 +10,7 @@
     "test": "node -e \"console.log('no tests')\""
   },
   "dependencies": {
+    "@dark-wallet/sdk": "workspace:*",
     "@midnight-ntwrk/dapp-connector-api": "4.0.0"
   },
   "devDependencies": {

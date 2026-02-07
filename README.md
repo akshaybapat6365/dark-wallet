@@ -24,3 +24,13 @@ pnpm build
 
 ## Docs
 See `docs/README.md`.
+
+## Chrome Extension (Dev)
+Build:
+```bash
+pnpm --filter @dark-wallet/extension build
+```
+
+Load unpacked in Chromium:
+- Extension root: `packages/extension/public`
+- Configure endpoints via `Options` (right click the extension or open `chrome://extensions`)

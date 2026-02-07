@@ -15,7 +15,6 @@ import { createDarkWallet, StaticKeyMaterialProvider } from "@dark-wallet/sdk";
 
 const wallet = createDarkWallet({
   keyMaterial: new StaticKeyMaterialProvider(new Uint8Array(32).fill(1)),
-  origin: "https://dapp.example", // optional, used for permission scoping + signData prefixing
   endpoints: {
     networkId: "testnet",
     indexerUri: "http://127.0.0.1:8088/api/v1/graphql",
@@ -25,7 +24,8 @@ const wallet = createDarkWallet({
   },
 });
 
-const api = await wallet.connect("testnet");
+// Optional origin override for permission scoping + `signData` domain separation.
+const api = await wallet.connect("testnet", { origin: "https://dapp.example" });
 const cfg = await api.getConfiguration();
 ```
 
@@ -49,6 +49,11 @@ await api.submitTransaction(tx);
 All connector methods that accept/return a `tx: string` use:
 - `hex(Transaction.serialize())` (not `Transaction.toString()`).
 
+### `makeIntent` Segment IDs
+`makeIntent(..., { intentId })` supports:
+- `intentId: "random"` (random segment id)
+- `intentId: number` (must be an integer in `1..65535`)
+
 ### Passkey-derived key material (browser)
 ```ts
 import { WebAuthnKeyMaterialProvider } from "@dark-wallet/sdk";
@@ -61,6 +66,15 @@ const keyMaterial = new WebAuthnKeyMaterialProvider({
 
 ### Permissions
 The SDK supports a pluggable permission controller. The embedded default is allow-all.
+
+### Encrypted Backup (EPSB)
+The SDK can export/import an **encrypted backup** of the encrypted private state blob:
+- `wallet.exportEncryptedBackup(password: string): Promise<string>`
+- `wallet.importEncryptedBackup(password: string, backupJson: string): Promise<void>`
+
+Notes:
+- The backup contains **no plaintext state**.
+- Restoring still requires the same key material (e.g. the same passkey) to decrypt the imported state.
 
 ## Errors
 - `DarkWalletError`

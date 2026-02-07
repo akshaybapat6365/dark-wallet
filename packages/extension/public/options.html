@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dark Wallet Options</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #0f1220;
+        --panel: #141a2e;
+        --text: #eef2ff;
+        --muted: #a7b0d6;
+        --border: rgba(255, 255, 255, 0.12);
+        --accent: #2df3a5;
+        --danger: #ff466a;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      }
+      body {
+        margin: 0;
+        padding: 24px;
+        background: radial-gradient(1200px 800px at 20% 10%, #1d2550 0%, var(--bg) 55%);
+        color: var(--text);
+      }
+      .wrap {
+        max-width: 920px;
+        margin: 0 auto;
+      }
+      h1 {
+        margin: 0 0 8px 0;
+        font-size: 22px;
+        letter-spacing: 0.2px;
+      }
+      p {
+        margin: 0 0 18px 0;
+        color: var(--muted);
+        line-height: 1.35;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .card {
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+      }
+      label {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.25);
+        color: var(--text);
+        outline: none;
+      }
+      input:focus {
+        border-color: rgba(45, 243, 165, 0.55);
+        box-shadow: 0 0 0 4px rgba(45, 243, 165, 0.08);
+      }
+      .row {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      button {
+        appearance: none;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+        border-radius: 12px;
+        padding: 10px 14px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      button.primary {
+        border-color: rgba(45, 243, 165, 0.45);
+        background: rgba(45, 243, 165, 0.14);
+      }
+      button.danger {
+        border-color: rgba(255, 70, 106, 0.45);
+        background: rgba(255, 70, 106, 0.12);
+      }
+      .status {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+          monospace;
+        font-size: 12px;
+      }
+      @media (max-width: 860px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Dark Wallet (Dev) Options</h1>
+      <p>
+        Configure endpoints used by the extension wallet host. Defaults assume a local indexer + proof server.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <div class="row">
+            <label>Active Network ID</label>
+            <input id="networkId" placeholder="testnet" />
+          </div>
+          <div class="row">
+            <label>Indexer HTTP (GraphQL)</label>
+            <input id="indexerUri" placeholder="http://127.0.0.1:8088/api/v1/graphql" />
+          </div>
+          <div class="row">
+            <label>Indexer WS (GraphQL)</label>
+            <input id="indexerWsUri" placeholder="ws://127.0.0.1:8088/api/v1/graphql" />
+          </div>
+          <div class="row">
+            <label>Proof Server</label>
+            <input id="proverServerUri" placeholder="http://127.0.0.1:6300" />
+          </div>
+          <div class="row">
+            <label>Substrate Node (WSS)</label>
+            <input id="substrateNodeUri" placeholder="wss://rpc.testnet-02.midnight.network" />
+          </div>
+
+          <div class="actions">
+            <button class="primary" id="save">Save</button>
+            <button class="danger" id="reset">Reset Defaults</button>
+            <span class="status" id="status"></span>
+          </div>
+        </div>
+
+        <div class="card">
+          <p style="margin-bottom: 10px">
+            Notes:
+          </p>
+          <ul style="margin: 0; padding-left: 18px; color: var(--muted); line-height: 1.35">
+            <li>
+              This is a dev build. Endpoint misconfiguration is the #1 reason the connector appears “broken”.
+            </li>
+            <li>
+              The wallet host uses an MV3 offscreen document to avoid service worker timeouts.
+            </li>
+            <li>
+              Tx strings are <code>hex(Transaction.serialize())</code>.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="dist/options.js"></script>
+  </body>
+</html>
+

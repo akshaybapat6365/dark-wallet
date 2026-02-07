@@ -35,3 +35,14 @@ export class AllowAllPermissionController implements PermissionController {
     return { granted: [...new Set(params.methods)] };
   }
 }
+
+export class DenyAllPermissionController implements PermissionController {
+  public async request(params: {
+    origin: string;
+    methods: WalletMethodName[];
+  }): Promise<{ granted: WalletMethodName[] }> {
+    void params.origin;
+    void params.methods;
+    return { granted: [] };
+  }
+}

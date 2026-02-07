@@ -35,9 +35,34 @@ export type WalletEvents = {
   stateChanged: { walletId: string };
 };
 
-export type DarkWallet = InitialAPI & {
+export type ConnectOptions = {
+  /**
+   * Optional origin override for permission scoping + message signing domain separation.
+   *
+   * This exists to support extension hosts (which know the requesting dApp origin),
+   * while remaining compatible with the connector `InitialAPI` shape (dApps still call `connect(networkId)`).
+   */
+  origin?: string;
+};
+
+export type DarkWallet = Omit<InitialAPI, "connect"> & {
+  connect(networkId: string, options?: ConnectOptions): Promise<ConnectedAPI>;
   events: Emitter<WalletEvents>;
   destroy(): Promise<void>;
+  /**
+   * Export an encrypted backup of the encrypted private state blob.
+   *
+   * The backup contains no plaintext state. Restoring still requires the same key material
+   * (e.g. the same passkey) to decrypt the state after import.
+   */
+  exportEncryptedBackup(password: string): Promise<string>;
+  /**
+   * Import a previously exported encrypted backup into this wallet's storage.
+   *
+   * This must be called while disconnected (before `connect()`), to avoid in-memory state
+   * diverging from persisted state.
+   */
+  importEncryptedBackup(password: string, backupJson: string): Promise<void>;
 };
 
 export type ConnectResult = ConnectedAPI;

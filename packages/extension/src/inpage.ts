@@ -4,17 +4,7 @@ import type {
   WalletConnectedAPI,
 } from "@midnight-ntwrk/dapp-connector-api";
 
-type RpcRequest = {
-  id: number;
-  origin: string;
-  networkId: string;
-  method: keyof WalletConnectedAPI | "hintUsage" | "connect";
-  params: unknown[];
-};
-
-type RpcResponse =
-  | { id: number; ok: true; result: unknown }
-  | { id: number; ok: false; error: unknown };
+import type { RpcRequest, RpcResponse } from "./rpc.js";
 
 function uuid(): string {
   return (

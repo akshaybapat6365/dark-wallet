@@ -35,6 +35,7 @@ import {
 import { base64ToBytes } from "../encoding/base64.js";
 import { hexToBytes } from "../encoding/hex.js";
 import { fetchLatestLedgerParameters } from "./indexer.js";
+import { resegmentIntentTx } from "./intent_segment.js";
 import { deserializeFinalizedTx, deserializeUnboundTx, serializeTx } from "./tx_codec.js";
 import { ConnectorZkConfigProvider } from "./zk_config_provider.js";
 
@@ -145,7 +146,6 @@ function desiredInputsToCombined(inputs: DesiredInput[]): {
 
 export class MidnightBackend {
   private readonly config: MidnightBackendConfig;
-  private readonly origin: string;
 
   private readonly unshieldedSecretKey: Uint8Array;
   private readonly keystore: ReturnType<typeof createKeystore>;
@@ -160,11 +160,9 @@ export class MidnightBackend {
 
   public constructor(params: {
     config: MidnightBackendConfig;
-    origin: string;
     masterSeed: Uint8Array;
   }) {
     this.config = params.config;
-    this.origin = params.origin;
 
     const hd = HDWallet.fromSeed(params.masterSeed);
     if (hd.type !== "seedOk") {
@@ -208,16 +206,13 @@ export class MidnightBackend {
     return { unshieldedAddress: this.unshieldedPublicKey.address };
   }
 
-  public signData(data: string, options: SignDataOptions): Signature {
+  public signData(origin: string, data: string, options: SignDataOptions): Signature {
     if (options.keyType !== "unshielded") {
       throw apiError(ErrorCodes.InvalidRequest, `Unsupported keyType '${options.keyType}'.`);
     }
 
     const msg = decodeSignDataPayload(data, options.encoding);
-    const payload = concatBytes(
-      signDataPrefix({ origin: this.origin, networkId: this.config.networkId }),
-      msg,
-    );
+    const payload = concatBytes(signDataPrefix({ origin, networkId: this.config.networkId }), msg);
     const sig = this.keystore.signData(payload);
     return { data, signature: sig, verifyingKey: this.unshieldedPublicKey.publicKey };
   }
@@ -399,13 +394,6 @@ export class MidnightBackend {
     desiredOutputs: DesiredOutput[],
     options: { intentId: number | "random"; payFees: boolean },
   ): Promise<{ tx: string }> {
-    if (options.intentId !== "random" && options.intentId !== 1) {
-      throw apiError(
-        ErrorCodes.InvalidRequest,
-        "makeIntent currently supports intentId='random' or intentId=1 only.",
-      );
-    }
-
     const facade = await this.ensureStarted();
     const combinedInputs = desiredInputsToCombined(desiredInputs);
     const combinedOutputs: CombinedSwapOutputs[] = groupDesiredOutputs(desiredOutputs);
@@ -417,7 +405,8 @@ export class MidnightBackend {
     );
 
     // Intents are intentionally returned as UNPROVEN transactions for composition by the dApp.
-    return { tx: serializeTx(recipe.transaction) };
+    const tx = resegmentIntentTx(recipe.transaction, options.intentId);
+    return { tx: serializeTx(tx) };
   }
 
   public async balanceUnsealedTransaction(txHex: string): Promise<{ tx: string }> {

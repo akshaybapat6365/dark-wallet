@@ -25,10 +25,11 @@ export type {
   PermissionRecord,
   WalletMethodName,
 } from "./permissions/types.js";
-export { AllowAllPermissionController } from "./permissions/types.js";
+export { AllowAllPermissionController, DenyAllPermissionController } from "./permissions/types.js";
 
 export type {
   DarkWallet,
+  ConnectOptions,
   DarkWalletConfig,
   EndpointsConfig,
   WalletEvents,
