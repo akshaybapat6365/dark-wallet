@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "Dark Wallet (Dev)",
+  "version": "0.0.0",
+  "description": "Dark Wallet dApp connector (development build).",
+  "permissions": ["storage"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "dist/sw.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["dist/inpage.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ]
+}
